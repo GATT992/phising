@@ -3,173 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Link Generator</title>
+    <title>Admin Link Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <style>
-        .link-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        .link-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid;
         }
+        .link-card.facebook { border-color: #1877F2; }
+        .link-card.instagram { border-color: #E4405F; }
+        .link-card.tiktok { border-color: #000000; }
+        .link-card.custom { border-color: #6366F1; }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4">
-        <!-- Admin Panel -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">Admin Panel - Custom Link Generator</h1>
-            
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Telegram Bot Token</label>
-                <input type="text" id="botToken" value="7950767142:AAGl3GIv8IDK1iAs14tHPezVqxlDMxxBU5I" 
-                       class="w-full p-2 border rounded">
+<body class="bg-gray-50 min-h-screen p-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Admin Link Manager</h1>
+            <p class="text-gray-600 mb-6">Buat tracking link untuk berbagai platform</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-gray-700 mb-2">Telegram Bot Token</label>
+                    <input type="text" id="botToken" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" 
+                           class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Chat ID</label>
+                    <input type="text" id="chatId" placeholder="123456789" 
+                           class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
             </div>
-            
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Chat ID</label>
-                <input type="text" id="chatId" value="7113683581" 
-                       class="w-full p-2 border rounded">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Link Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .link-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+        }
+        .link-card.facebook { border-color: #1877F2; }
+        .link-card.instagram { border-color: #E4405F; }
+        .link-card.tiktok { border-color: #000000; }
+        .link-card.custom { border-color: #6366F1; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Admin Link Manager</h1>
+            <p class="text-gray-600 mb-6">Buat tracking link untuk berbagai platform</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-gray-700 mb-2">Telegram Bot Token</label>
+                    <input type="text" id="botToken" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" 
+                           class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Chat ID</label>
+                    <input type="text" id="chatId" placeholder="123456789" 
+                           class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
             </div>
-            
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Platform</label>
-                <select id="platform" class="w-full p-2 border rounded">
-                    <option value="facebook">Facebook</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="tiktok">TikTok</option>
-                    <option value="twitter">Twitter</option>
-                    <option value="custom">Custom</option>
-                </select>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-gray-700 mb-2">Platform</label>
+                    <select id="platform" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="facebook">Facebook</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="custom">Custom URL</option>
+                    </select>
+                </div>
+                <div id="usernameField">
+                    <label class="block text-gray-700 mb-2">Username/URL</label>
+                    <input type="text" id="username" placeholder="username_anda" 
+                           class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div id="customUrlField" class="hidden md:col-span-2">
+                    <label class="block text-gray-700 mb-2">Target URL</label>
+                    <input type="url" id="customUrl" placeholder="https://website-anda.com" 
+                           class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
             </div>
-            
-            <div class="mb-4" id="usernameField">
-                <label class="block text-gray-700 mb-2">Username</label>
-                <input type="text" id="username" placeholder="contoh: username_anda" 
-                       class="w-full p-2 border rounded">
-            </div>
-            
-            <div class="mb-4 hidden" id="customUrlField">
-                <label class="block text-gray-700 mb-2">Custom URL</label>
-                <input type="text" id="customUrl" placeholder="https://example.com" 
-                       class="w-full p-2 border rounded">
-            </div>
-            
-            <button id="generateBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
-                Generate Link
+
+            <button id="generateBtn" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                Generate Tracking Link
             </button>
         </div>
-        
-        <!-- Generated Links -->
+
         <div id="linksContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- Generated links will appear here -->
         </div>
     </div>
 
     <script>
-        // DOM Elements
-        const platformSelect = document.getElementById('platform');
-        const usernameField = document.getElementById('usernameField');
-        const customUrlField = document.getElementById('customUrlField');
-        const generateBtn = document.getElementById('generateBtn');
-        const linksContainer = document.getElementById('linksContainer');
-        
-        // Show/hide fields based on platform selection
-        platformSelect.addEventListener('change', function() {
-            if (this.value === 'custom') {
-                usernameField.classList.add('hidden');
-                customUrlField.classList.remove('hidden');
-            } else {
-                usernameField.classList.remove('hidden');
-                customUrlField.classList.add('hidden');
-            }
+        document.getElementById('platform').addEventListener('change', function() {
+            const isCustom = this.value === 'custom';
+            document.getElementById('usernameField').classList.toggle('hidden', isCustom);
+            document.getElementById('customUrlField').classList.toggle('hidden', !isCustom);
         });
-        
-        // Generate tracking link
-        generateBtn.addEventListener('click', async function() {
+
+        document.getElementById('generateBtn').addEventListener('click', function() {
             const botToken = document.getElementById('botToken').value.trim();
             const chatId = document.getElementById('chatId').value.trim();
-            const platform = platformSelect.value;
+            const platform = document.getElementById('platform').value;
             let username = document.getElementById('username').value.trim();
             let customUrl = document.getElementById('customUrl').value.trim();
-            
+
             if (!botToken || !chatId) {
-                swal("Error", "Harap isi Bot Token dan Chat ID", "error");
+                alert('Bot Token dan Chat ID wajib diisi!');
                 return;
             }
-            
-            let url, displayText, icon;
+
+            let url, displayText, platformClass;
             
             if (platform === 'custom') {
                 if (!customUrl) {
-                    swal("Error", "Harap isi URL custom", "error");
+                    alert('URL target wajib diisi!');
                     return;
                 }
                 url = customUrl;
-                displayText = "Custom Link";
-                icon = "🌐";
+                displayText = 'Custom Link';
+                platformClass = 'custom';
             } else {
                 if (!username) {
-                    swal("Error", "Harap isi username", "error");
+                    alert('Username wajib diisi!');
                     return;
                 }
-                
+
                 switch(platform) {
                     case 'facebook':
                         url = `https://facebook.com/${username}`;
-                        displayText = "Facebook";
-                        icon = "👥";
+                        displayText = 'Facebook';
+                        platformClass = 'facebook';
                         break;
                     case 'instagram':
                         url = `https://instagram.com/${username}`;
-                        displayText = "Instagram";
-                        icon = "📷";
+                        displayText = 'Instagram';
+                        platformClass = 'instagram';
                         break;
                     case 'tiktok':
                         url = `https://tiktok.com/@${username}`;
-                        displayText = "TikTok";
-                        icon = "🎵";
-                        break;
-                    case 'twitter':
-                        url = `https://twitter.com/${username}`;
-                        displayText = "Twitter";
-                        icon = "🐦";
+                        displayText = 'TikTok';
+                        platformClass = 'tiktok';
                         break;
                 }
             }
-            
-            // Create tracking URL
-            const trackingUrl = `tracking.html?platform=${encodeURIComponent(platform)}&display=${encodeURIComponent(displayText)}&url=${encodeURIComponent(url)}&botToken=${encodeURIComponent(botToken)}&chatId=${encodeURIComponent(chatId)}`;
-            
-            // Add link to UI
-            const linkCard = document.createElement('div');
-            linkCard.className = 'link-card bg-white rounded-lg shadow-md p-4 transition-all duration-300';
-            linkCard.innerHTML = `
-                <div class="flex items-center mb-2">
-                    <div class="text-2xl mr-3">${icon}</div>
-                    <div>
-                        <h3 class="font-bold">${displayText}</h3>
-                        <p class="text-sm text-gray-600">${platform === 'custom' ? url : `${platform}/${username}`}</p>
-                    </div>
-                </div>
-                <input type="text" value="${window.location.href.replace('admin.html', trackingUrl)}" 
-                       class="w-full p-2 border rounded text-xs mb-2" readonly>
-                <button onclick="copyToClipboard('${window.location.href.replace('admin.html', trackingUrl)}')" 
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded text-sm">
-                    Salin Link
-                </button>
-            `;
-            
-            linksContainer.prepend(linkCard);
-            swal("Berhasil!", "Link berhasil dibuat", "success");
-        });
-        
-        // Copy to clipboard function
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            swal("Berhasil!", "Link telah disalin", "success");
-        }
 
-        // You'll also need to create a separate tracking.html file
+            const trackingUrl = `${window.location.origin}/tracking.html?platform=${encodeURIComponent(platform)}&display=${encodeURIComponent(displayText)}&url=${encodeURIComponent(url)}&botToken=${encodeURIComponent(botToken)}&chatId=${encodeURIComponent(chatId)}`;
+
+            const linkCard = document.createElement('div');
+            linkCard.className = `link-card ${platformClass} bg-white rounded-lg shadow-sm p-5 hover:shadow-md`;
+            linkCard.innerHTML = `
+                <div class="flex items-start mb-3">
+                    <div class="font-semibold text-lg mr-3">${displayText}</div>
+                    <div class="text-xs px-2 py-1 bg-gray-100 rounded text-gray-600">${platform}</div>
+                </div>
+                <div class="text-sm text-gray-500 mb-4 truncate">${platform === 'custom' ? url : url.replace('https://', '')}</div>
+                <div class="flex space-x-2">
+                    <input type="text" value="${trackingUrl}" 
+                           class="flex-1 text-xs p-2 border rounded bg-gray-50 text-gray-700 truncate" readonly>
+                    <button onclick="navigator.clipboard.writeText('${trackingUrl}')" 
+                            class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm">
+                        Copy
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('linksContainer').prepend(linkCard);
+        });
     </script>
 </body>
 </html>
