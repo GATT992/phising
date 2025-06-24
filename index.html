@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Link Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <style>
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <!-- Admin Panel -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">Admin Panel - Custom Link Generator</h1>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Telegram Bot Token</label>
+                <input type="text" id="botToken" value="7950767142:AAGl3GIv8IDK1iAs14tHPezVqxlDMxxBU5I" 
+                       class="w-full p-2 border rounded">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Chat ID</label>
+                <input type="text" id="chatId" value="7113683581" 
+                       class="w-full p-2 border rounded">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Platform</label>
+                <select id="platform" class="w-full p-2 border rounded">
+                    <option value="facebook">Facebook</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+            
+            <div class="mb-4" id="usernameField">
+                <label class="block text-gray-700 mb-2">Username</label>
+                <input type="text" id="username" placeholder="contoh: username_anda" 
+                       class="w-full p-2 border rounded">
+            </div>
+            
+            <div class="mb-4 hidden" id="customUrlField">
+                <label class="block text-gray-700 mb-2">Custom URL</label>
+                <input type="text" id="customUrl" placeholder="https://example.com" 
+                       class="w-full p-2 border rounded">
+            </div>
+            
+            <button id="generateBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                Generate Link
+            </button>
+        </div>
+        
+        <!-- Generated Links -->
+        <div id="linksContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Generated links will appear here -->
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const platformSelect = document.getElementById('platform');
+        const usernameField = document.getElementById('usernameField');
+        const customUrlField = document.getElementById('customUrlField');
+        const generateBtn = document.getElementById('generateBtn');
+        const linksContainer = document.getElementById('linksContainer');
+        
+        // Show/hide fields based on platform selection
+        platformSelect.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                usernameField.classList.add('hidden');
+                customUrlField.classList.remove('hidden');
+            } else {
+                usernameField.classList.remove('hidden');
+                customUrlField.classList.add('hidden');
+            }
+        });
+        
+        // Generate tracking link
+        generateBtn.addEventListener('click', async function() {
+            const botToken = document.getElementById('botToken').value.trim();
+            const chatId = document.getElementById('chatId').value.trim();
+            const platform = platformSelect.value;
+            let username = document.getElementById('username').value.trim();
+            let customUrl = document.getElementById('customUrl').value.trim();
+            
+            if (!botToken || !chatId) {
+                swal("Error", "Harap isi Bot Token dan Chat ID", "error");
+                return;
+            }
+            
+            let url, displayText, icon;
+            
+            if (platform === 'custom') {
+                if (!customUrl) {
+                    swal("Error", "Harap isi URL custom", "error");
+                    return;
+                }
+                url = customUrl;
+                displayText = "Custom Link";
+                icon = "🌐";
+            } else {
+                if (!username) {
+                    swal("Error", "Harap isi username", "error");
+                    return;
+                }
+                
+                switch(platform) {
+                    case 'facebook':
+                        url = `https://facebook.com/${username}`;
+                        displayText = "Facebook";
+                        icon = "👥";
+                        break;
+                    case 'instagram':
+                        url = `https://instagram.com/${username}`;
+                        displayText = "Instagram";
+                        icon = "📷";
+                        break;
+                    case 'tiktok':
+                        url = `https://tiktok.com/@${username}`;
+                        displayText = "TikTok";
+                        icon = "🎵";
+                        break;
+                    case 'twitter':
+                        url = `https://twitter.com/${username}`;
+                        displayText = "Twitter";
+                        icon = "🐦";
+                        break;
+                }
+            }
+            
+            // Create tracking URL
+            const trackingUrl = `tracking.html?platform=${encodeURIComponent(platform)}&display=${encodeURIComponent(displayText)}&url=${encodeURIComponent(url)}&botToken=${encodeURIComponent(botToken)}&chatId=${encodeURIComponent(chatId)}`;
+            
+            // Add link to UI
+            const linkCard = document.createElement('div');
+            linkCard.className = 'link-card bg-white rounded-lg shadow-md p-4 transition-all duration-300';
+            linkCard.innerHTML = `
+                <div class="flex items-center mb-2">
+                    <div class="text-2xl mr-3">${icon}</div>
+                    <div>
+                        <h3 class="font-bold">${displayText}</h3>
+                        <p class="text-sm text-gray-600">${platform === 'custom' ? url : `${platform}/${username}`}</p>
+                    </div>
+                </div>
+                <input type="text" value="${window.location.href.replace('admin.html', trackingUrl)}" 
+                       class="w-full p-2 border rounded text-xs mb-2" readonly>
+                <button onclick="copyToClipboard('${window.location.href.replace('admin.html', trackingUrl)}')" 
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded text-sm">
+                    Salin Link
+                </button>
+            `;
+            
+            linksContainer.prepend(linkCard);
+            swal("Berhasil!", "Link berhasil dibuat", "success");
+        });
+        
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            swal("Berhasil!", "Link telah disalin", "success");
+        }
+
+        // You'll also need to create a separate tracking.html file
+    </script>
+</body>
+</html>
